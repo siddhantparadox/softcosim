@@ -9,7 +9,7 @@ app = typer.Typer(add_completion=False)
 console = Console()
 
 def abort(msg: str, code: int = 1):
-    console.print(f"[bold red]Error:[/bold red] {msg}")
+    print(f"Error: {msg}")
     raise typer.Exit(code)
 
 @app.command()
