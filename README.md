@@ -27,12 +27,14 @@ A simulation of a small software studio powered by LLMs.
 After installing the package you can start a simulation with:
 
 ```bash
-softcosim "Build a to‑do app" --hours 8 --folder ./run1
+softcosim "Build a to‑do app" --days 2 --folder ./run1
 ```
 
 The command will prompt for an API key if `OPENROUTER_API_KEY` is not already set
 in the environment. Output files such as `timeline.md` and `gossip.md` will be
-created inside the folder you specify.
+created inside the folder you specify. To speed up the simulation, pass the
+`--speed` option where the value is the number of real seconds per simulated
+hour. For example, `--speed 2` runs at 30&nbsp;minutes per second.
 
 ## Development
 

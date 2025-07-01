@@ -18,6 +18,21 @@ def run(
     days: int = typer.Option(None, "--days", "-d", help="Number of days to simulate"),
     budget: float = typer.Option(None, "--budget", "-b", help="LLM budget in USD"),
     folder: Path = typer.Option(..., "--folder", "-f", help="The root folder for the simulation output."),
+    start_hour: int = typer.Option(
+        None,
+        "--start-hour",
+        help="Hour the workday starts (0-23)",
+    ),
+    end_hour: int = typer.Option(
+        None,
+        "--end-hour",
+        help="Hour the workday ends (1-24)",
+    ),
+    speed: float = typer.Option(
+        None,
+        "--speed",
+        help="Seconds per simulated hour",
+    ),
 ):
     """Kicks off a new software studio simulation."""
 
@@ -28,6 +43,12 @@ def run(
         days = typer.prompt("Number of days", type=int)
     if budget is None:
         budget = typer.prompt("LLM budget (USD)", type=float)
+    if start_hour is None:
+        start_hour = typer.prompt("Start hour", type=int)
+    if end_hour is None:
+        end_hour = typer.prompt("End hour", type=int)
+    if speed is None:
+        speed = typer.prompt("Seconds per simulated hour", type=float)
 
     # 1. Folder guard
     if folder.exists():
@@ -49,7 +70,15 @@ def run(
 
     # 3. Kick off simulation
     console.print(":rocket: Launching simulation…")
-    sim = CompanySim(prompt, days, folder.resolve(), budget=budget)
+    sim = CompanySim(
+        prompt,
+        days,
+        folder.resolve(),
+        start_hour=start_hour,
+        end_hour=end_hour,
+        seconds_per_hour=speed,
+        budget=budget,
+    )
     asyncio.run(sim.start())
     console.print(":white_check_mark: Done.")
 

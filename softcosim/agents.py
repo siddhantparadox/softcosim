@@ -1,7 +1,11 @@
 from __future__ import annotations
 import random
+from typing import TYPE_CHECKING
 from .fs import write
 from .llm import chat
+
+if TYPE_CHECKING:
+    from .engine import CompanySim
 
 class Agent:
     model = "mistralai/devstral-small"
