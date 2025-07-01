@@ -41,6 +41,8 @@ class CompanySim:
         self.timeline_path = self.root / "timeline.md"
         self.gossip_path = self.root / "gossip.md"
         self.morale = 75.0
+        self.fatigue = 0.0
+        self.FATIGUE_RATE = 5.0
         self.MORALE_DECAY = (1.0, 3.0)
         self.cost = 0.0
         self.budget = budget
@@ -57,15 +59,21 @@ class CompanySim:
 
     def _prepare_fs(self):
         self.timeline_path.write_text(
-            "# Timeline\n\n| Sim Time | Kind | Message | Morale | Cost |\n|:---:|:---|:---|:---:|:---:|\n"
+            "# Timeline\n\n| Sim Time | Kind | Message | Morale | Fatigue | Cost |\n|:---:|:---|:---|:---:|:---:|:---:|\n"
         )
         self.gossip_path.write_text(
             "# Gossip Log\n\n| Sim Time | Speaker | Line |\n|:---:|:---|:---|\n"
         )
 
     def log(self, msg, kind="INFO"):
-        line_console = f"[{self.now:0.2f}] {kind} | {msg} | Morale {self.morale:05.1f} | Cost ${self.cost:.4f}"
-        line_file = f"| {self.now:0.2f} | {kind} | {msg} | {self.morale:0.1f} | ${self.cost:.4f} |\n"
+        line_console = (
+            f"[{self.now:0.2f}] {kind} | {msg} | "
+            f"Morale {self.morale:05.1f} | Fatigue {self.fatigue:05.1f} | Cost ${self.cost:.4f}"
+        )
+        line_file = (
+            f"| {self.now:0.2f} | {kind} | {msg} | "
+            f"{self.morale:0.1f} | {self.fatigue:0.1f} | {self.cost:.4f} |\n"
+        )
         self.console.print(line_console)
         with self.timeline_path.open("a", encoding="utf-8") as f:
             f.write(line_file)
@@ -82,7 +90,12 @@ class CompanySim:
 
     def coffee_break(self):
         self.morale = min(100.0, self.morale + 5)
+        self.fatigue = max(0.0, self.fatigue - 10)
         self.log("Coffee break", kind="EVENT")
+
+    def lunch_break(self):
+        self.fatigue = max(0.0, self.fatigue - 20)
+        self.log("Lunch break", kind="EVENT")
 
     def team_meeting(self):
         self.morale = max(0.0, self.morale - 5)
@@ -91,17 +104,24 @@ class CompanySim:
     def schedule(self, delay_hr: float, fn, desc=""):
         heapq.heappush(self.events, Event(self.now + delay_hr, fn, desc))
 
+    def _advance_time(self, delta_hr: float):
+        if delta_hr > 0:
+            self.fatigue = min(100.0, self.fatigue + delta_hr * self.FATIGUE_RATE)
+
     def _schedule_initial_events(self):
         self.schedule(0, self.agents["mgr"].act, "Manager kickoff")
 
         for day in range(self.days):
             base = day * self.hours_per_day
 
-            # daily coffee break and meeting
+            # daily coffee break, lunch, and meeting
             coffee = base + (10 - self.start_hour)
+            lunch = base + (12 - self.start_hour)
             meeting = base + (15 - self.start_hour)
             if 0 <= coffee <= self.total_hours:
                 self.schedule(coffee, self.coffee_break, "Coffee break")
+            if 0 <= lunch <= self.total_hours:
+                self.schedule(lunch, self.lunch_break, "Lunch break")
             if 0 <= meeting <= self.total_hours:
                 self.schedule(meeting, self.team_meeting, "Team meeting")
 
@@ -126,6 +146,7 @@ class CompanySim:
             if to_sleep > 0:
                 await asyncio.sleep(to_sleep)
 
+            self._advance_time(evt.t - self.now)
             self.now = evt.t
             if asyncio.iscoroutinefunction(evt.fn):
                 await evt.fn()
