@@ -1,7 +1,6 @@
 import pytest
 from pathlib import Path
 import tempfile
-import os
 
 from softcosim.fs import safe_path
 

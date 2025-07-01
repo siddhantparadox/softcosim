@@ -1,5 +1,4 @@
 from typer.testing import CliRunner
-import os
 
 from softcosim.__main__ import app
 
@@ -66,9 +65,14 @@ def test_folder_is_created_successfully(tmp_path, monkeypatch):
         ],
         catch_exceptions=False,
     )
-    
+
     assert result.exit_code == 0, f"CLI failed with output:\n{result.stdout}"
     assert folder.exists()
+    readme_path = folder / "README.md"
+    assert readme_path.exists()
+    content = readme_path.read_text()
+    assert "Prompt: Test" in content
+    assert "Days: 1" in content
 
 
 def test_cli_accepts_time_options(tmp_path, monkeypatch):

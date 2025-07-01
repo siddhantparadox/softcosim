@@ -56,6 +56,14 @@ class CompanySim:
         self._prepare_fs()
         self._schedule_initial_events()
         await self._run_loop()
+        readme = self.root / "README.md"
+        summary = (
+            "# Simulation Summary\n\n"
+            f"Prompt: {self.prompt}\n\n"
+            f"Days: {self.days}\n\n"
+            f"Final cost: ${self.cost:.4f}\n"
+        )
+        readme.write_text(summary, encoding="utf-8")
 
     def _prepare_fs(self):
         self.timeline_path.write_text(
