@@ -1,5 +1,4 @@
 from typer.testing import CliRunner
-from pathlib import Path
 import os
 
 # This is a bit of a hack to get the softcosim module in the path

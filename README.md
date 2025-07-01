@@ -37,3 +37,5 @@ To set up the development environment, run:
 python -m venv .venv
 .venv\Scripts\activate.ps1
 pip install -e .[dev]
+pytest -q
+```
