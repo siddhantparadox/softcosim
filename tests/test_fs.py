@@ -3,11 +3,6 @@ from pathlib import Path
 import tempfile
 import os
 
-# This is a bit of a hack to get the softcosim module in the path
-# A proper setup.py or pyproject.toml would handle this better
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from softcosim.fs import safe_path
 
 def test_safe_path_allows_valid_paths():
