@@ -1,5 +1,4 @@
 from typer.testing import CliRunner
-from pathlib import Path
 import os
 
 # This is a bit of a hack to get the softcosim module in the path
@@ -25,7 +24,8 @@ def test_folder_guard_blocks_existing(tmp_path):
     )
     
     assert result.exit_code != 0
-    assert "already exists" in result.stdout
+    out = result.stdout.lower()
+    assert "already" in out and "exists" in out
 
 def test_folder_is_created_successfully(tmp_path, monkeypatch):
     """

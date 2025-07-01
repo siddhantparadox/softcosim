@@ -1,7 +1,5 @@
-import subprocess
 import os
-import textwrap
-import shlex
+import subprocess
 import tempfile
 
 DOCKER_IMAGE = "python:3.12-slim"
@@ -20,22 +18,31 @@ def run_pytest(root: str) -> str:
             "cd /tmp/work && "
             "python softcosim/checker.py"
         )
-        cmd = (
-            f'docker run --rm --cpus="0.5" --memory="512m" '
-            f'-v "{root}:/mnt:ro" '
-            f'-v "{tmp}:/tmp/work" '
-            f'-w "/tmp/work" '  # Set the working directory
-            f'{DOCKER_IMAGE} '
-            f'bash -c "{bash_command}"'
-        )
+        cmd = [
+            "docker",
+            "run",
+            "--rm",
+            "--cpus=0.5",
+            "--memory=512m",
+            "-v",
+            f"{root}:/mnt:ro",
+            "-v",
+            f"{tmp}:/tmp/work",
+            "-w",
+            "/tmp/work",
+            DOCKER_IMAGE,
+            "bash",
+            "-c",
+            bash_command,
+        ]
         
         try:
             completed = subprocess.run(
                 cmd,
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True,
-                check=False  # Don't raise exception on non-zero exit
+                check=False,  # Don't raise exception on non-zero exit
             )
             return completed.stdout + completed.stderr
         except FileNotFoundError:

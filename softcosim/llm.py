@@ -1,8 +1,6 @@
 import os
 import aiohttp
-import asyncio
 import time
-import json
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 

@@ -1,6 +1,5 @@
 import pytest
 import asyncio
-from typer.testing import CliRunner
 from pathlib import Path
 
 # This is a bit of a hack to get the softcosim module in the path
