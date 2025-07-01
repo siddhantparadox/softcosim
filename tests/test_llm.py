@@ -9,6 +9,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from softcosim.engine import CompanySim
+from softcosim.llm import chat
 
 @pytest.mark.asyncio
 async def test_llm_fake_mode(tmp_path: Path, monkeypatch):
@@ -36,3 +37,15 @@ async def test_llm_real_mode_cost_tracking(tmp_path: Path, monkeypatch):
     agent = sim.agents["mgr"]
     await agent.ask_llm("system", "user")
     assert sim.cost > 0.0
+
+
+@pytest.mark.asyncio
+async def test_llm_streaming_fake(monkeypatch):
+    """Tokens should be yielded when streaming in fake mode."""
+    monkeypatch.setenv("SOFTCOSIM_FAKE_LLM", "1")
+    messages = [{"role": "system", "content": "s"}, {"role": "user", "content": "u"}]
+    stream = await chat("test", messages, stream=True)
+    out = ""
+    async for token in stream:
+        out += token
+    assert out == "FAKE-LLM-REPLY"

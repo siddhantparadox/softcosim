@@ -9,13 +9,14 @@ A simulation of a software studio, powered by LLMs.
 - Agents (manager, lead, devs, QA, HR) talk, code, gossip, take breaks, and hit a simulated deadline.
 - Every event is streamed live to the terminal and written to markdown / code files in real time.
 - The first thing the CLI does is ask for (or read) an OpenRouter API key.
+- LLM replies can be streamed token-by-token.
 
 ## Tech Stack
 
 | Layer       | Lib / tool                        | Note                                |
 | ----------- | --------------------------------- | ----------------------------------- |
 | CLI & core  | Python 3.12, `typer`              | Auto-gen help and coloured prompts. |
-| LLM calls   | OpenRouter `/v1/chat/completions` | Model name set per agent.           |
+| LLM calls   | OpenRouter `/v1/chat/completions` | Model name set per agent, token streaming via `aiohttp`. |
 | Concurrency | `asyncio`                         | CPU-light, fits CLI use.            |
 | Scheduler   | `heapq`, `dataclasses`            | No extra deps.                      |
 | Terminal UI | `rich`                            | Progress bars + live tables.        |

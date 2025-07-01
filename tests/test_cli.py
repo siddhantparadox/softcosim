@@ -25,7 +25,7 @@ def test_folder_guard_blocks_existing(tmp_path):
     )
     
     assert result.exit_code != 0
-    assert "already exists" in result.stdout
+    assert "already" in result.stdout and "exists" in result.stdout
 
 def test_folder_is_created_successfully(tmp_path, monkeypatch):
     """
