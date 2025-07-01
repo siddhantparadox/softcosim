@@ -23,7 +23,7 @@ async def test_timeline_logs_events(tmp_path: Path, monkeypatch):
     output_dir = tmp_path / "test_run"
     output_dir.mkdir()
 
-    sim = CompanySim(prompt="Test Engine", sim_hours=8, root=output_dir)
+    sim = CompanySim(prompt="Test Engine", days=1, root=output_dir)
     await sim.start()
     
     timeline_path = output_dir / "timeline.md"

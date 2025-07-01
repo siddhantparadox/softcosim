@@ -15,7 +15,7 @@ async def test_llm_fake_mode(tmp_path: Path, monkeypatch):
     Tests that the LLM fake mode returns canned responses and zero cost.
     """
     monkeypatch.setenv("SOFTCOSIM_FAKE_LLM", "1")
-    sim = CompanySim(prompt="Test LLM", sim_hours=1, root=tmp_path)
+    sim = CompanySim(prompt="Test LLM", days=1, root=tmp_path)
     agent = sim.agents["mgr"]
     reply = await agent.ask_llm("system", "user")
     assert reply == "FAKE-LLM-REPLY"
@@ -31,7 +31,7 @@ async def test_llm_real_mode_cost_tracking(tmp_path: Path, monkeypatch):
         pytest.skip("OPENROUTER_API_KEY not set, skipping real LLM test.")
 
     monkeypatch.setenv("SOFTCOSIM_FAKE_LLM", "0")
-    sim = CompanySim(prompt="Test LLM", sim_hours=1, root=tmp_path)
+    sim = CompanySim(prompt="Test LLM", days=1, root=tmp_path)
     agent = sim.agents["mgr"]
     await agent.ask_llm("system", "user")
     assert sim.cost > 0.0

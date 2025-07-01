@@ -6,7 +6,6 @@ from pathlib import Path
 from rich.console import Console
 from .agents import Manager, Developer, QA
 
-SIM_RATIO = 3600  # 1 real sec = 1 sim hour (configurable)
 
 class Event:
     __slots__ = ("t", "fn", "desc")
@@ -16,10 +15,25 @@ class Event:
         return self.t < other.t
 
 class CompanySim:
-    def __init__(self, prompt: str, sim_hours: int, root: Path):
+    def __init__(
+        self,
+        prompt: str,
+        days: int,
+        root: Path,
+        *,
+        start_hour: int = 9,
+        end_hour: int = 17,
+        seconds_per_hour: float = 1.0,
+        budget: float = 0.5,
+    ):
         self.prompt = prompt
-        self.sim_hours = sim_hours
+        self.days = days
+        self.start_hour = start_hour
+        self.end_hour = end_hour
+        self.hours_per_day = end_hour - start_hour
+        self.total_hours = self.hours_per_day * days
         self.root = root
+        self.seconds_per_hour = seconds_per_hour
         self.console = Console()
         self.now = 0.0  # simulated hour float
         self.events: list[Event] = []
@@ -29,7 +43,7 @@ class CompanySim:
         self.morale = 75.0
         self.MORALE_DECAY = (1.0, 3.0)
         self.cost = 0.0
-        self.budget = 0.5  # USD
+        self.budget = budget
         self.agents = {
             "mgr": Manager(self, "Manager"),
             "dev": Developer(self, "Dev-A"),
@@ -66,29 +80,48 @@ class CompanySim:
         with self.gossip_path.open("a", encoding="utf-8") as f:
             f.write(f"| {self.now:0.2f} | {speaker} | {line} |\n")
 
+    def coffee_break(self):
+        self.morale = min(100.0, self.morale + 5)
+        self.log("Coffee break", kind="EVENT")
+
+    def team_meeting(self):
+        self.morale = max(0.0, self.morale - 5)
+        self.log("Team meeting", kind="EVENT")
+
     def schedule(self, delay_hr: float, fn, desc=""):
         heapq.heappush(self.events, Event(self.now + delay_hr, fn, desc))
 
     def _schedule_initial_events(self):
         self.schedule(0, self.agents["mgr"].act, "Manager kickoff")
-        
-        # Schedule recurring gossip events
-        t = 0.5
-        while t < self.sim_hours:
-            # Pick a random agent to gossip
-            agent = random.choice(list(self.agents.values()))
-            self.schedule(t, agent.gossip, f"{agent.name} gossips")
-            t += 0.5
 
-        self.schedule(self.sim_hours, lambda: self.log("Deadline reached – stopping"))
+        for day in range(self.days):
+            base = day * self.hours_per_day
+
+            # daily coffee break and meeting
+            coffee = base + (10 - self.start_hour)
+            meeting = base + (15 - self.start_hour)
+            if 0 <= coffee <= self.total_hours:
+                self.schedule(coffee, self.coffee_break, "Coffee break")
+            if 0 <= meeting <= self.total_hours:
+                self.schedule(meeting, self.team_meeting, "Team meeting")
+
+            # gossip every half hour of work time
+            t = base + 0.5
+            end = base + self.hours_per_day
+            while t < end:
+                agent = random.choice(list(self.agents.values()))
+                self.schedule(t, agent.gossip, f"{agent.name} gossips")
+                t += 0.5
+
+        self.schedule(self.total_hours, lambda: self.log("Deadline reached – stopping"))
 
     async def _run_loop(self):
         while self.events:
             evt = heapq.heappop(self.events)
-            if evt.t > self.sim_hours:
+            if evt.t > self.total_hours:
                 break
 
-            target_real = self.start_real + (evt.t / SIM_RATIO)
+            target_real = self.start_real + (evt.t * self.seconds_per_hour)
             to_sleep = target_real - time.perf_counter()
             if to_sleep > 0:
                 await asyncio.sleep(to_sleep)
