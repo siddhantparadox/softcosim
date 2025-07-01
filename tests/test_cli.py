@@ -1,11 +1,7 @@
 from typer.testing import CliRunner
 from pathlib import Path
-import os
 
-# This is a bit of a hack to get the softcosim module in the path
-# A proper setup.py or pyproject.toml would handle this better
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from softcosim.__main__ import app
 
@@ -25,7 +21,8 @@ def test_folder_guard_blocks_existing(tmp_path):
     )
     
     assert result.exit_code != 0
-    assert "already exists" in result.stdout
+    normalized = " ".join(result.stdout.split())
+    assert "already exists" in normalized
 
 def test_folder_is_created_successfully(tmp_path, monkeypatch):
     """
