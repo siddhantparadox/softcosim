@@ -51,8 +51,8 @@ async def test_fatigue_decay_and_recovery(tmp_path: Path, monkeypatch):
 
     timeline_content = (tmp_path / "timeline.md").read_text()
     lines = [
-        l
-        for l in timeline_content.splitlines()
-        if "Coffee break" in l or "Lunch break" in l
+        line
+        for line in timeline_content.splitlines()
+        if "Coffee break" in line or "Lunch break" in line
     ]
     assert lines
