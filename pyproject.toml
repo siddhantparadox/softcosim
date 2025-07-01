@@ -1,0 +1,37 @@
+[project]
+name = "softcosim"
+version = "0.1.0"
+description = "A simulation of a software studio, powered by LLMs."
+authors = [{ name = "Siddhant Gupta", email = "siddhantg314@gmail.com" }]
+dependencies = [
+    "typer[all]",
+    "rich",
+    "openai",
+    "aiohttp",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "bandit",
+    "typer[all]",
+    "pytest-asyncio",
+    "pytest-env",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.bandit]
+skips = ["B101"] # Skip assert_used, as it's common in tests
+
+[tool.setuptools]
+packages = ["softcosim"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+env = [
+    "SOFTCOSIM_NO_DOCKER=1",
+    "SOFTCOSIM_FAKE_LLM=1",
+]

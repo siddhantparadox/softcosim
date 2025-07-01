@@ -1,0 +1,21 @@
+# Memory Bank
+/memory-bank
+/key.txt
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Eggs
+.eggs/
+*.egg-info/
+*.egg
+
+# Pytest
+.pytest_cache/
+
+# Simulation runs
+test_run_*/
