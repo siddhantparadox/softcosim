@@ -50,6 +50,14 @@ def test_safe_path_blocks_escape_attempts():
              with pytest.raises(ValueError):
                 safe_path(root, other_dir / "file.txt")
 
+def test_safe_path_blocks_deceptive_prefixes():
+    """Ensure paths that merely share a prefix with root are blocked."""
+    root = Path("/tmp").resolve()
+    with pytest.raises(ValueError):
+        safe_path(root, Path("/tmpfile"))
+    with pytest.raises(ValueError):
+        safe_path(root, Path("/tmp/../tmpfile"))
+
 def test_safe_path_with_real_directories():
     """
     Tests safe_path against the current working directory structure.

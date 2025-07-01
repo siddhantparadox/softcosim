@@ -1,11 +1,18 @@
 from pathlib import Path
+from os import path as os_path
 
 def safe_path(root: Path, target: Path) -> Path:
     """
     Resolves a target path relative to a root, ensuring it does not escape the root.
     """
+    root = root.resolve()
     p = (root / target).resolve()
-    if not str(p).startswith(str(root)):
+    try:
+        relative = p.is_relative_to(root)
+    except AttributeError:
+        # For Python <3.9; use os.path.commonpath as a fallback
+        relative = os_path.commonpath([root, p]) == str(root)
+    if not relative:
         raise ValueError(f"Path escape blocked: {p} is not within {root}")
     return p
 
