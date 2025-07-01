@@ -1,7 +1,5 @@
 import subprocess
 import os
-import textwrap
-import shlex
 import tempfile
 
 DOCKER_IMAGE = "python:3.12-slim"
