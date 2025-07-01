@@ -8,6 +8,7 @@ A simulation of a small software studio powered by LLMs.
 - All output stays inside one root folder chosen by the user.
 - Agents (manager, developer, QA) talk, code, gossip and hit a simulated deadline.
 - Every event is streamed live to the terminal and written to files.
+- LLM responses stream token-by-token for accurate cost tracking.
 - The CLI first asks for (or reads) an OpenRouter API key.
 
 ## Tech Stack
@@ -15,7 +16,7 @@ A simulation of a small software studio powered by LLMs.
 | Layer       | Lib / tool                        | Notes                                  |
 | ----------- | --------------------------------- | -------------------------------------- |
 | CLI & core  | Python 3.12, `typer`              | Auto-generated help, coloured prompts. |
-| LLM calls   | OpenRouter `/v1/chat/completions` | Model name set per agent.              |
+| LLM calls   | OpenRouter `/v1/chat/completions` | Streamed via `aiohttp`; model name per agent. |
 | Concurrency | `asyncio`                         | CPU-light, fits CLI use.               |
 | Scheduler   | `heapq`, `dataclasses`            | No extra deps.                         |
 | Terminal UI | `rich`                            | Progress bars & live tables.           |

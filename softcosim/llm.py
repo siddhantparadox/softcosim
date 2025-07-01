@@ -1,6 +1,7 @@
 import os
 import aiohttp
 import time
+import json
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -40,5 +41,30 @@ async def chat(model: str, messages: list[dict], stream: bool = False) -> tuple[
                 latency = time.perf_counter() - t0
                 return data["choices"][0]["message"]["content"], cost, latency
             else:
-                # Streaming logic to be implemented later
-                return "STREAMING-NOT-IMPLEMENTED", 0.0, 0.0
+                reply = ""
+                cost = 0.0
+                async for chunk in r.content:
+                    if not chunk:
+                        continue
+                    for raw in chunk.decode("utf-8").splitlines():
+                        if not raw.startswith("data:"):
+                            continue
+                        payload = raw[len("data:"):].strip()
+                        if payload == "[DONE]":
+                            continue
+                        try:
+                            data = json.loads(payload)
+                        except Exception:
+                            continue
+                        delta = (
+                            data.get("choices", [{}])[0]
+                            .get("delta", {})
+                            .get("content")
+                        )
+                        if delta:
+                            reply += delta
+                        usage = data.get("usage")
+                        if usage:
+                            cost = usage.get("cost", cost)
+                latency = time.perf_counter() - t0
+                return reply, cost, latency
