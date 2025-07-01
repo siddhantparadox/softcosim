@@ -14,13 +14,21 @@ def abort(msg: str, code: int = 1):
 
 @app.command()
 def run(
-    prompt: str = typer.Argument(..., help="Project prompt for the team"),
-    hours: int = typer.Option(8, "--hours", "-h", help="The number of simulated hours to run."),
+    prompt: str = typer.Option(None, "--prompt", "-p", help="Project prompt for the team"),
+    days: int = typer.Option(None, "--days", "-d", help="Number of days to simulate"),
+    budget: float = typer.Option(None, "--budget", "-b", help="LLM budget in USD"),
     folder: Path = typer.Option(..., "--folder", "-f", help="The root folder for the simulation output."),
 ):
-    """
-    Kicks off a new software studio simulation.
-    """
+    """Kicks off a new software studio simulation."""
+
+    console.print(":wave: Welcome to SoftCoSim!")
+    if not prompt:
+        prompt = typer.prompt("Project description")
+    if days is None:
+        days = typer.prompt("Number of days", type=int)
+    if budget is None:
+        budget = typer.prompt("LLM budget (USD)", type=float)
+
     # 1. Folder guard
     if folder.exists():
         abort(f"Output folder '{folder}' already exists.")
@@ -41,7 +49,7 @@ def run(
 
     # 3. Kick off simulation
     console.print(":rocket: Launching simulation…")
-    sim = CompanySim(prompt, hours, folder.resolve())
+    sim = CompanySim(prompt, days, folder.resolve(), budget=budget)
     asyncio.run(sim.start())
     console.print(":white_check_mark: Done.")
 

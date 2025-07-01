@@ -29,7 +29,7 @@ async def test_qa_logs_results(tmp_path: Path, monkeypatch):
         pass
     monkeypatch.setattr(asyncio, "sleep", fake_sleep)
 
-    sim = CompanySim(prompt="Test QA", sim_hours=1, root=tmp_path)
+    sim = CompanySim(prompt="Test QA", days=1, root=tmp_path)
     await sim.start()
 
     qa_log_path = tmp_path / "qa" / "test_log.txt"

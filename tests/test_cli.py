@@ -19,7 +19,7 @@ def test_folder_guard_blocks_existing(tmp_path):
     
     result = runner.invoke(
         app,
-        ["--folder", str(folder), "Test Prompt"],
+        ["--folder", str(folder), "--prompt", "Test", "--days", "1", "--budget", "1"],
         catch_exceptions=False, # Let Typer's Exit bubble up
     )
     
@@ -38,7 +38,7 @@ def test_folder_is_created_successfully(tmp_path, monkeypatch):
     
     result = runner.invoke(
         app,
-        ["--folder", str(folder), "Test Prompt"],
+        ["--folder", str(folder), "--prompt", "Test", "--days", "1", "--budget", "1"],
         catch_exceptions=False,
     )
     

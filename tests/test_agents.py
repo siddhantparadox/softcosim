@@ -20,7 +20,7 @@ async def test_developer_creates_hello(tmp_path: Path, monkeypatch):
         pass
     monkeypatch.setattr(asyncio, "sleep", fake_sleep)
 
-    sim = CompanySim(prompt="HelloWorld", sim_hours=1, root=tmp_path)
+    sim = CompanySim(prompt="HelloWorld", days=1, root=tmp_path)
     await sim.start()
 
     hello_path = tmp_path / "src" / "hello.py"

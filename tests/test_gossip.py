@@ -20,7 +20,7 @@ async def test_gossip_and_morale(tmp_path: Path, monkeypatch):
         pass
     monkeypatch.setattr(asyncio, "sleep", fake_sleep)
 
-    sim = CompanySim(prompt="Test Gossip", sim_hours=1, root=tmp_path)
+    sim = CompanySim(prompt="Test Gossip", days=1, root=tmp_path)
     initial_morale = sim.morale
     await sim.start()
 
