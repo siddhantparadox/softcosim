@@ -37,4 +37,5 @@ async def test_gossip_and_morale(tmp_path: Path, monkeypatch):
     timeline_path = tmp_path / "timeline.md"
     timeline_content = timeline_path.read_text()
     assert "| Morale |" in timeline_content
+    assert "| Fatigue |" in timeline_content
     assert "GOSSIP" in timeline_content
